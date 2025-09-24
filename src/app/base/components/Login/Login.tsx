@@ -137,6 +137,18 @@ export const Login = (): React.ReactElement => {
                   />
                 </FormikForm>
               )}
+              <Button
+                appearance="positive"
+                className="login__external"
+                element="a"
+                href={
+                  "http://10.20.0.2:5240/MAAS/a/v3/auth/oauth/initiate/okta"
+                }
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Login with Okta
+              </Button>
             </Card>
           )}
         </Col>
