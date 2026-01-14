@@ -186,7 +186,6 @@ export const Login = (): React.ReactElement => {
                       if (!hasEnteredUsername) {
                         setHasEnteredUsername(true);
                       } else {
-                        // dispatch(statusActions.login(values));
                         handleSubmit(values);
                       }
                     }}
