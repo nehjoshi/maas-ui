@@ -34,6 +34,12 @@ import type {
   PreLoginData,
   PreLoginResponses,
   PreLoginErrors,
+  InitiateAuthFlowData,
+  InitiateAuthFlowErrors,
+  InitiateAuthFlowResponses,
+  HandleOauthCallbackData,
+  HandleOauthCallbackErrors,
+  HandleOauthCallbackResponses,
 } from "@/app/apiclient";
 import {
   deleteOauthProvider,
@@ -45,10 +51,14 @@ import {
   login,
   createSession,
   preLogin,
+  initiateAuthFlow,
+  handleOauthCallback,
 } from "@/app/apiclient";
 import {
   getMeWithSummaryQueryKey,
   getOauthProviderQueryKey,
+  handleOauthCallbackQueryKey,
+  initiateAuthFlowQueryKey,
 } from "@/app/apiclient/@tanstack/react-query.gen";
 
 export const usePreLogin = (mutationOptions?: Options<PreLoginData>) => {
@@ -70,15 +80,39 @@ export const useAuthenticate = (mutationOptions?: Options<LoginData>) => {
   });
 };
 
+export const useIsOIDCUser = (options: Options<InitiateAuthFlowData>) => {
+  return useWebsocketAwareQuery({
+    ...queryOptionsWithHeaders<
+      InitiateAuthFlowResponses,
+      InitiateAuthFlowErrors,
+      InitiateAuthFlowData
+    >(options, initiateAuthFlow, initiateAuthFlowQueryKey(options)),
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+};
+
+export const useGetCallback = (options: Options<HandleOauthCallbackData>) => {
+  return useWebsocketAwareQuery({
+    ...queryOptionsWithHeaders<
+      HandleOauthCallbackResponses,
+      HandleOauthCallbackErrors,
+      HandleOauthCallbackData
+    >(options, handleOauthCallback, handleOauthCallbackQueryKey(options)),
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+};
+
 export const useCreateSession = (
-  mutationOtions?: Options<CreateSessionData>
+  mutationOptions?: Options<CreateSessionData>
 ) => {
   return useMutation({
     ...mutationOptionsWithHeaders<
       CreateSessionResponses,
       CreateSessionErrors,
       CreateSessionData
-    >(mutationOtions, createSession),
+    >(mutationOptions, createSession),
   });
 };
 

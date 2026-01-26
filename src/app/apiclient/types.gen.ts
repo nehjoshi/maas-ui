@@ -79,26 +79,6 @@ export type ARecordResponse = {
 };
 
 /**
- * AccessTokenResponse
- *
- * Content for a response returning a JWT.
- */
-export type AccessTokenResponse = {
-  /**
-   * Token Type
-   */
-  token_type: string;
-  /**
-   * Access Token
-   */
-  access_token: string;
-  /**
-   * Kind
-   */
-  kind?: string;
-};
-
-/**
  * AgentListResponse
  *
  * Base class for offset-paginated responses.
@@ -2998,6 +2978,7 @@ export type PublicConfigName =
   | "prometheus_push_interval"
   | "promtail_enabled"
   | "promtail_port"
+  | "refresh_token_duration"
   | "release_notifications"
   | "remote_syslog"
   | "session_length"
@@ -4306,6 +4287,30 @@ export type TagsListResponse = {
 };
 
 /**
+ * TokenResponse
+ *
+ * Content for a response returning a JWT and a refresh token.
+ */
+export type TokenResponse = {
+  /**
+   * Token Type
+   */
+  token_type: string;
+  /**
+   * Access Token
+   */
+  access_token: string;
+  /**
+   * Refresh Token
+   */
+  refresh_token?: string;
+  /**
+   * Kind
+   */
+  kind?: string;
+};
+
+/**
  * UISourceAvailableImageListResponse
  */
 export type UiSourceAvailableImageListResponse = {
@@ -5561,7 +5566,7 @@ export type GetAccessTokenResponses = {
   /**
    * Successful Response
    */
-  200: AccessTokenResponse;
+  200: TokenResponse;
 };
 
 export type GetAccessTokenResponse =
@@ -5723,7 +5728,7 @@ export type LoginResponses = {
   /**
    * Successful Response
    */
-  200: AccessTokenResponse;
+  200: TokenResponse;
 };
 
 export type LoginResponse = LoginResponses[keyof LoginResponses];
@@ -7209,12 +7214,6 @@ export type UploadCustomImageData = {
      */
     sha256: string;
     /**
-     * Size
-     *
-     * The size of the resource in bytes.
-     */
-    size: number;
-    /**
      * Architecture
      *
      * Architecture the boot resource supports.
@@ -7233,7 +7232,7 @@ export type UploadCustomImageData = {
     /**
      * Base-Image
      *
-     * The Base OS image a custom image is built on top of. Only required for custom image.
+     * The Base OS image a custom image is built on top of. Only required for images of type 'custom'.
      */
     "base-image"?: string;
   };

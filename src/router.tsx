@@ -4,6 +4,7 @@ import { MainToolbar } from "@canonical/maas-react-components";
 import { createBrowserRouter, Navigate } from "react-router";
 
 import Login from "./app/login/Login";
+import LoginCallback from "./app/login/LoginCallback";
 import RequireLogin from "./app/login/RequireLogin";
 import TagDetails from "./app/tags/views/TagDetails";
 import TagList from "./app/tags/views/TagList";
@@ -110,6 +111,10 @@ export const router = createBrowserRouter(
         {
           path: urls.login,
           element: <Login />,
+        },
+        {
+          path: urls.loginCallback,
+          element: <LoginCallback />,
         },
         {
           element: <RequireLogin />,

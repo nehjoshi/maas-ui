@@ -13,7 +13,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router";
 import * as Yup from "yup";
 
-import { useAuthenticate, useCreateSession } from "@/app/api/query/auth";
+import {
+  useAuthenticate,
+  useCreateSession,
+  useIsOIDCUser,
+} from "@/app/api/query/auth";
 import type { LoginError, TokenResponse } from "@/app/apiclient";
 import FormikField from "@/app/base/components/FormikField";
 import FormikForm from "@/app/base/components/FormikForm";
@@ -25,8 +29,8 @@ import statusSelectors from "@/app/store/status/selectors";
 import { formatErrors, setCookie } from "@/app/utils";
 import { COOKIE_NAMES } from "@/app/utils/cookies";
 
-const generateSchema = (hasEnteredUsername: boolean) => {
-  if (hasEnteredUsername) {
+const generateSchema = (hasEnteredUsername: boolean, isOIDCUser: boolean) => {
+  if (hasEnteredUsername && !isOIDCUser) {
     return Yup.object().shape({
       username: Yup.string().required("Username is required"),
       password: Yup.string().required("Password is required"),
@@ -75,6 +79,14 @@ export const Login = (): React.ReactElement => {
 
   // TODO: replace this state with a mutation to check if user is local or OIDC https://warthogs.atlassian.net/browse/MAASENG-5637
   const [hasEnteredUsername, setHasEnteredUsername] = useState(false);
+  const [isOIDCUser, setIsOIDCUser] = useState(false);
+  const [oidcURL, setOidcURL] = useState("");
+  const [providerName, setProviderName] = useState("");
+  const [username, setUsername] = useState<string | null>(null);
+
+  const userInfoQuery = useIsOIDCUser({
+    query: { email: username ?? "" },
+  });
 
   const noUsers = useSelector(statusSelectors.noUsers);
 
@@ -139,6 +151,15 @@ export const Login = (): React.ReactElement => {
     );
   };
 
+  const handleUsernameSubmit = (values: { username: string }) => {
+    setUsername(values.username);
+    userInfoQuery.refetch().then((response) => {
+      setIsOIDCUser(response.data?.is_oidc ?? false);
+      setOidcURL(response.data?.auth_url ?? "");
+      setProviderName(response.data?.provider_name ?? "");
+    });
+  };
+
   return (
     <PageContent>
       <Strip>
@@ -195,31 +216,52 @@ export const Login = (): React.ReactElement => {
                     }}
                     onSubmit={(values) => {
                       if (!hasEnteredUsername) {
+                        handleUsernameSubmit({ username: values.username });
                         setHasEnteredUsername(true);
                       } else {
-                        handleSubmit(values);
+                        if (isOIDCUser) {
+                          window.location.href = oidcURL;
+                          console.log("IsOiDCUser:", isOIDCUser);
+                        } else {
+                          console.log("Submitting login form");
+                          handleSubmit(values);
+                        }
                       }
                     }}
                     saved={authenticated}
                     saving={authenticating}
-                    submitLabel={hasEnteredUsername ? Labels.Submit : "Next"}
-                    validationSchema={generateSchema(hasEnteredUsername)}
+                    submitLabel={
+                      !hasEnteredUsername
+                        ? "Next"
+                        : isOIDCUser
+                          ? `Login with ${providerName}`
+                          : Labels.Submit
+                    }
+                    validationSchema={generateSchema(
+                      hasEnteredUsername,
+                      isOIDCUser
+                    )}
                   >
                     <FormikField
                       aria-hidden={hasEnteredUsername}
                       hidden={hasEnteredUsername}
                       label={hasEnteredUsername ? "" : Labels.Username}
                       name="username"
+                      onBlur={(e) => {
+                        setUsername(e.target.value ?? "");
+                      }}
                       required={true}
                       takeFocus
                       type="text"
                     />
                     <FormikField
-                      aria-hidden={!hasEnteredUsername}
-                      hidden={!hasEnteredUsername}
-                      label={!hasEnteredUsername ? "" : Labels.Password}
+                      aria-hidden={!hasEnteredUsername || isOIDCUser}
+                      hidden={!hasEnteredUsername || isOIDCUser}
+                      label={
+                        !hasEnteredUsername || isOIDCUser ? "" : Labels.Password
+                      }
                       name="password"
-                      required={hasEnteredUsername}
+                      required={hasEnteredUsername && !isOIDCUser}
                       type="password"
                     />
                   </FormikForm>
