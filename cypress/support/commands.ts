@@ -27,7 +27,7 @@ Cypress.Commands.add("login", (options) => {
 
   cy.request({
     method: "POST",
-    url: `${Cypress.env("BASENAME")}/accounts/login/`,
+    url: `${Cypress.env("BASENAME")}/a/v3/auth/login/`,
     form: true,
     body: {
       username,
