@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { constructURL } = require("./utils");
 
-const TIMEOUT = 5000;
+const TIMEOUT = 30000;
 
 module.exports = async function (context, commands) {
   await commands.cdp.send("Network.setCookie", {
@@ -18,12 +18,12 @@ module.exports = async function (context, commands) {
   await commands.wait.bySelector("input[name='username']", TIMEOUT);
   await commands.addText.byName("admin", "username");
   await commands.click.bySelector("button.p-button--positive");
-  await commands.wait.bySelector("input[name='password']:not([hidden])", TIMEOUT);
-  await commands.addText.byName("test", "password");
-  await commands.click.bySelector("button.p-button--positive");
-  await commands.wait.bySelector(
-    "[data-testid='section-header-title-spinner']",
+  // Wait for the login step to advance to PASSWORD (button text changes from "Next" to "Login")
+  await commands.wait.byCondition(
+    `document.querySelector("button.p-button--positive")?.textContent?.trim() === "Login"`,
     TIMEOUT
   );
-  await commands.wait.byXpath("//a//span[text()='admin']");
+  await commands.addText.byName("test", "password");
+  await commands.click.bySelector("button.p-button--positive");
+  await commands.wait.byXpath("//a//span[text()='admin']", TIMEOUT);
 };
