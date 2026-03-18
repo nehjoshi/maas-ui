@@ -109,12 +109,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-      - name: Install Cypress
-        uses: cypress-io/github-action@v4
-        with:
-          runTests: false
-          install-command: yarn install
-          build: yarn build
+      # - name: Install Cypress
+      #   uses: cypress-io/github-action@v4
+      #   with:
+      #     runTests: false
+      #     install-command: yarn install
+      #     build: yarn build
       - name: Create MAAS admin
         if: matrix.groups == 'with-users'
         run: sudo maas createadmin --username=admin --password=test --email=fake@example.org
@@ -139,8 +139,8 @@ jobs:
         if: matrix.groups == 'with-users'
         shell: bash
         run: |
-          API_KEY=$(sudo maas apikey --username admin)
-          maas login admin http://localhost:5240/MAAS $API_KEY
+          maas logout admin
+          maas login admin https://localhost:5443/MAAS $API_KEY
           maas admin oidc-providers create \
             name="Keycloak" \
             client_id="maas-client" \
