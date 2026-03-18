@@ -74,56 +74,37 @@ jobs:
             /opt/keycloak/bin/kcadm.sh get clients/\$CLIENT_ID/client-secret -r test-realm | grep value | cut -d'\"' -f4
           ")
 
+          USERNAME=johndoe
+          REALM=test-realm
+
           # Create test user
           docker exec -i $CONTAINER_NAME /bin/bash -c "\
-            /opt/keycloak/bin/kcadm.sh create users -r test-realm \
-              -s username=johndoe \
+            /opt/keycloak/bin/kcadm.sh create users -r $REALM \
+              -s username=$USERNAME \
               -s email=john.doe@example.com \
               -s firstName=john \
               -s lastName=doe \
               -s enabled=true
           "
 
-          USERNAME=johndoe
-          REALM=test-realm
-
-          # Wait until the user exists
-          echo "Waiting for user $USERNAME to be created..."
-          until docker exec -i keycloak-test /bin/bash -c "\
-            /opt/keycloak/bin/kcadm.sh get users -r $REALM -q username=$USERNAME --fields id --format csv | tail -n1 | grep -v '^$'
-          " >/dev/null 2>&1; do
-            echo -n "."
-            sleep 2
+          # Wait until the user exists and get its ID
+          echo "Waiting for user $USERNAME to be fully created..."
+          USER_ID=""
+          while [ -z "$USER_ID" ]; do
+            USER_ID=$(docker exec -i $CONTAINER_NAME /bin/bash -c "\
+              /opt/keycloak/bin/kcadm.sh get users -r $REALM -q username=$USERNAME --fields id --format csv | tail -n1 | tr -d '\"' \
+            ")
+            [ -z "$USER_ID" ] && sleep 2
           done
-          echo "User $USERNAME exists, setting password..."
+          echo "User created with ID $USER_ID, setting password..."
 
-          # Set password
-          docker exec -i keycloak-test /bin/bash -c "\
-            /opt/keycloak/bin/kcadm.sh set-password -r $REALM \
-              --username $USERNAME \
-              --new-password abc123 \
-              --temporary=false
-          "
-
+          # Set password for the new user
           docker exec -i $CONTAINER_NAME /bin/bash -c "\
-            /opt/keycloak/bin/kcadm.sh set-password -r test-realm \
-              --username johndoe \
+            /opt/keycloak/bin/kcadm.sh set-password -r $REALM \
+              --userid $USER_ID \
               --new-password abc123 \
               --temporary=false
           "
-
-          # Register Keycloak as OIDC provider in MAAS
-          API_KEY=$(sudo maas apikey --username maas --generate)
-          sudo maas login maas ${MAAS_URL} $API_KEY
-          sudo maas maas oidc-providers create \
-            name="Keycloak" \
-            client_id="maas-client" \
-            client_secret="$KC_CLIENT_SECRET" \
-            enabled=True \
-            issuer_url="http://localhost:8080/realms/test-realm" \
-            token_type="JWT" \
-            redirect_uri="https://localhost:5443/MAAS/r/login/oidc/callback" \
-            scopes="openid profile email offline_access" -k
       - name: Use Node.js from .nvmrc
         uses: actions/setup-node@v4
         with:
