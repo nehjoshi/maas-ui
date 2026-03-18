@@ -38,7 +38,7 @@ jobs:
             -e MAAS_URL="${MAAS_URL}" \
             quay.io/keycloak/keycloak:26.5.5 start-dev
           echo "Waiting for Keycloak to start..."
-          sleep 15 
+          sleep 30 
 
           # Log in as admin
           docker exec -i $CONTAINER_NAME /bin/bash -c "\
@@ -48,7 +48,7 @@ jobs:
               --user admin \
               --password admin
           "
-          
+
           # Create test realm and client
           docker exec -i $CONTAINER_NAME /bin/bash -c "\
             /opt/keycloak/bin/kcadm.sh create realms -s realm=test-realm -s enabled=true
