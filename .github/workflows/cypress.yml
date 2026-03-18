@@ -18,7 +18,7 @@ jobs:
         groups: ["no-users", "with-users"]
     env:
       MAAS_URL: https://localhost:5443
-      MAAS_UI_URL: http://localhost:8400
+      MAAS_UI_URL: https://localhost:8400
     steps:
       - uses: actions/checkout@main
       - name: Get branch name
@@ -65,7 +65,7 @@ jobs:
               -s enabled=true \
               -s publicClient=false \
               -s 'standardFlowEnabled=true' \
-              -s \"redirectUris=[\\\"https://localhost:5443/MAAS/r/login/oidc/callback\\\"]\"
+              -s \"redirectUris=[\\\"https://localhost:8400/MAAS/r/login/oidc/callback\\\"]\"
           "
 
           # Get client secret
@@ -135,7 +135,7 @@ jobs:
             enabled=True \
             issuer_url="http://localhost:8080/realms/test-realm" \
             token_type="JWT" \
-            redirect_uri="https://localhost:5443/MAAS/r/login/oidc/callback" \
+            redirect_uri="https://localhost:8400/MAAS/r/login/oidc/callback" \
             scopes="openid profile email offline_access"
       - name: Enable TLS for MAAS
         shell: bash
@@ -148,18 +148,24 @@ jobs:
             -subj "/C=US/ST=State/L=City/O=Org/OU=Unit/CN=maas.example.com" && \
             
           echo "y" | sudo maas config-tls enable /var/snap/maas/common/certs/key.pem /var/snap/maas/common/certs/cert.pem
+          sudo chmod 644 /var/snap/maas/common/certs/key.pem /var/snap/maas/common/certs/cert.pem
       - name: Wait for MAAS boot resources
         if: matrix.groups == 'with-users'
         shell: bash
         run: while [ $(maas admin boot-resources is-importing -k | cat) == "true" ]; do sleep 10; done; echo "syncing finished"
       - name: Run Cypress tests
         uses: cypress-io/github-action@v4
+        env:
+          HTTPS_CERT: /var/snap/maas/common/certs/cert.pem
+          HTTPS_KEY: /var/snap/maas/common/certs/key.pem
+          NODE_TLS_REJECT_UNAUTHORIZED: "0"
         with:
           config: baseUrl=${{env.MAAS_UI_URL}},pageLoadTimeout=100000
           install: false
           start: yarn start
           spec: cypress/e2e/${{ matrix.groups }}/**/*.{spec.ts,feature}
           wait-on: ${{env.MAAS_UI_URL}}/MAAS/r/machines
+          wait-on-timeout: 120
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
