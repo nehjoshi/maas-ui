@@ -31,12 +31,11 @@ jobs:
         run: |
           CONTAINER_NAME=keycloak-test
           CONTAINER_PORT=8080
-          docker run -d --name $CONTAINER_NAME \
-            --network=host \
-            -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
-            -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
-            -e MAAS_URL="${MAAS_URL}" \
-            quay.io/keycloak/keycloak:26.5.5 start-dev
+          docker run -d --name keycloak-test \
+          -p 8080:8080 \
+          -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+          -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+          quay.io/keycloak/keycloak:26.5.5 start-dev
           echo "Waiting for Keycloak to start..."
           sleep 30 
 
