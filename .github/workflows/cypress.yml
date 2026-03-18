@@ -109,12 +109,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-      # - name: Install Cypress
-      #   uses: cypress-io/github-action@v4
-      #   with:
-      #     runTests: false
-      #     install-command: yarn install
-      #     build: yarn build
+      - name: Install Cypress
+        uses: cypress-io/github-action@v4
+        with:
+          runTests: false
+          install-command: yarn install
+          build: yarn build
       - name: Create MAAS admin
         if: matrix.groups == 'with-users'
         run: sudo maas createadmin --username=admin --password=test --email=fake@example.org
@@ -151,7 +151,7 @@ jobs:
       - name: Wait for MAAS boot resources
         if: matrix.groups == 'with-users'
         shell: bash
-        run: while [ $(maas admin boot-resources is-importing | cat) == "true" ]; do sleep 10; done; echo "syncing finished"
+        run: while [ $(maas admin boot-resources is-importing -k | cat) == "true" ]; do sleep 10; done; echo "syncing finished"
       - name: Run Cypress tests
         uses: cypress-io/github-action@v4
         with:
