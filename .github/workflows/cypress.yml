@@ -98,7 +98,7 @@ jobs:
           done
           echo "User created with ID $USER_ID, setting password..."
 
-          # Set password for the new user
+          # Set password for new user
           docker exec -i $CONTAINER_NAME /bin/bash -c "\
             /opt/keycloak/bin/kcadm.sh set-password -r $REALM \
               --userid $USER_ID \
