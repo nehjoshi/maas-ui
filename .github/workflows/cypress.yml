@@ -149,6 +149,10 @@ jobs:
             
           echo "y" | sudo maas config-tls enable /var/snap/maas/common/certs/key.pem /var/snap/maas/common/certs/cert.pem
           sudo chmod 644 /var/snap/maas/common/certs/key.pem /var/snap/maas/common/certs/cert.pem
+      - name: Trust self-signed certificate
+        run: |
+          sudo cp /var/snap/maas/common/certs/cert.pem /usr/local/share/ca-certificates/maas-selfsigned.crt
+          sudo update-ca-certificates
       - name: Wait for MAAS boot resources
         if: matrix.groups == 'with-users'
         shell: bash
@@ -158,7 +162,6 @@ jobs:
         env:
           HTTPS_CERT: /var/snap/maas/common/certs/cert.pem
           HTTPS_KEY: /var/snap/maas/common/certs/key.pem
-          NODE_TLS_REJECT_UNAUTHORIZED: "0"
         with:
           config: baseUrl=${{env.MAAS_UI_URL}},pageLoadTimeout=100000
           install: false
