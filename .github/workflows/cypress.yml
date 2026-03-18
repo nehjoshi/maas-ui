@@ -36,8 +36,14 @@ jobs:
           -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
           -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
           quay.io/keycloak/keycloak:26.5.5 start-dev
-          echo "Waiting for Keycloak to start..."
-          sleep 30 
+          
+          # Wait for Keycloak to accept connections
+          echo "Waiting for Keycloak to be ready..."
+          until curl -s http://localhost:8080/realms/master >/dev/null; do
+            echo -n "."
+            sleep 5
+          done
+          echo "Keycloak is ready"
 
           # Log in as admin
           docker exec -i $CONTAINER_NAME /bin/bash -c "\
