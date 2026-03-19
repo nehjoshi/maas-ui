@@ -40,7 +40,6 @@ jobs:
           # Wait for Keycloak to accept connections
           echo "Waiting for Keycloak to be ready..."
           until curl -s http://localhost:8080/realms/master >/dev/null; do
-            echo -n "."
             sleep 5
           done
           echo "Keycloak is ready"
@@ -65,7 +64,8 @@ jobs:
               -s enabled=true \
               -s publicClient=false \
               -s 'standardFlowEnabled=true' \
-              -s \"redirectUris=[\\\"https://localhost:8400/MAAS/r/login/oidc/callback\\\"]\"
+              -s \"redirectUris=[\\\"https://localhost:8400/MAAS/r/login/oidc/callback\\\"]\" \
+              -s \"webOrigins=[\\\"https://localhost:8400\\\"]\"
           "
 
           # Get client secret
