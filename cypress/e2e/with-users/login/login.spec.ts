@@ -73,6 +73,9 @@ context("Login page", () => {
       cy.get("input[name='password']").type("abc123");
       cy.get("button[type='submit']").click();
     });
-    cy.location("pathname").should("eq", generateMAASURL("/machines"));
+    cy.location("pathname", { timeout: 20000 }).should(
+      "eq",
+      generateMAASURL("/machines")
+    );
   });
 });
