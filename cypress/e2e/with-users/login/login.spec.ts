@@ -68,7 +68,7 @@ context("Login page", () => {
     cy.findByRole("button", { name: /Next/ }).click();
     cy.findByRole("button", { name: /Login with keycloak/i }).click();
     // Log in at keycloak
-    cy.origin("http://10.76.223.103:8080", () => {
+    cy.origin("http://localhost:8080", () => {
       cy.get("input[name='username']").type("johndoe");
       cy.get("input[name='password']").type("abc123");
       cy.get("button[type='submit']").click();
