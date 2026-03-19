@@ -66,9 +66,11 @@ context("Login page", () => {
     cy.get("input[name='username']").type("johndoe");
     cy.findByRole("button", { name: /Login with keycloak/i }).click();
     // Log in at keycloak
-    cy.get("input[name='username']").type("johndoe");
-    cy.get("input[name='password']").type("password");
-    cy.findByRole("button", { name: /Sign in/i }).click();
+    cy.origin("http://localhost:8080", () => {
+      cy.get("input[name='username']").type("johndoe");
+      cy.get("input[name='password']").type("password");
+      cy.findByRole("button", { name: /Sign in/i }).click();
+    });
     cy.location("pathname").should("eq", generateMAASURL("/machines"));
-  })
+  });
 });
