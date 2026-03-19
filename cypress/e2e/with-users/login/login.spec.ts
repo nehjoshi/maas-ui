@@ -63,14 +63,15 @@ context("Login page", () => {
 
   it("logs in via using SSO and redirects to the machine list", () => {
     cy.setCookie("skipsetupintro", "true");
+    cy.setCookie("skipintro", "true");
     cy.get("input[name='username']").type("johndoe");
     cy.findByRole("button", { name: /Next/ }).click();
     cy.findByRole("button", { name: /Login with keycloak/i }).click();
     // Log in at keycloak
-    cy.origin("http://localhost:8080", () => {
+    cy.origin("http://10.76.223.103:8080", () => {
       cy.get("input[name='username']").type("johndoe");
-      cy.get("input[name='password']").type("password");
-      cy.findByRole("button", { name: /Sign in/i }).click();
+      cy.get("input[name='password']").type("abc123");
+      cy.get("button[type='submit']").click();
     });
     cy.location("pathname").should("eq", generateMAASURL("/machines"));
   });
