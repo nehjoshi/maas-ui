@@ -158,6 +158,12 @@ jobs:
         if: matrix.groups == 'with-users'
         shell: bash
         run: while [ $(maas admin boot-resources is-importing -k | cat) == "true" ]; do sleep 10; done; echo "syncing finished"
+      - name: Stream MAAS logs
+        shell: bash
+        run: sudo journalctl -u snap.maas.pebble.service -f &
+      - name: Stream Keycloak logs
+        shell: bash
+        run: docker logs -f keycloak-test &
       - name: Run Cypress tests
         uses: cypress-io/github-action@v4
         env:
