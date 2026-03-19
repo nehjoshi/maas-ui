@@ -64,6 +64,7 @@ context("Login page", () => {
   it("logs in via using SSO and redirects to the machine list", () => {
     cy.setCookie("skipsetupintro", "true");
     cy.get("input[name='username']").type("johndoe");
+    cy.findByRole("button", { name: /Next/ }).click();
     cy.findByRole("button", { name: /Login with keycloak/i }).click();
     // Log in at keycloak
     cy.origin("http://localhost:8080", () => {
