@@ -69,10 +69,11 @@ jobs:
           "
 
           # Get client secret
-          export KC_CLIENT_SECRET=$(docker exec $CONTAINER_NAME /bin/bash -c "\
+          KC_CLIENT_SECRET=$(docker exec $CONTAINER_NAME /bin/bash -c "\
             CLIENT_ID=\$(/opt/keycloak/bin/kcadm.sh get clients -r test-realm -q clientId=maas-client --fields id --format csv | tail -n1 | tr -d '\"'); \
             /opt/keycloak/bin/kcadm.sh get clients/\$CLIENT_ID/client-secret -r test-realm | grep value | cut -d'\"' -f4
           ")
+          echo "KC_CLIENT_SECRET=$KC_CLIENT_SECRET" >> $GITHUB_ENV
 
           USERNAME=johndoe
           REALM=test-realm
@@ -158,14 +159,6 @@ jobs:
         if: matrix.groups == 'with-users'
         shell: bash
         run: while [ $(maas admin boot-resources is-importing -k | cat) == "true" ]; do sleep 10; done; echo "syncing finished"
-      - name: Stream MAAS logs
-        shell: bash
-        run: sudo journalctl -u snap.maas.pebble.service -f &
-      - name: Stream Keycloak logs
-        shell: bash
-        run: docker logs -f keycloak-test &
-      - name: Make the runner SSHable
-        uses: valeriangalliat/action-sshd-cloudflared@v1
       - name: Run Cypress tests
         uses: cypress-io/github-action@v4
         env:
