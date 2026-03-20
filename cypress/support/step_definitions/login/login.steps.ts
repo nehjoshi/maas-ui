@@ -29,6 +29,12 @@ When("the user provides correct username and password", () => {
   cy.get("button[type='submit']").click();
 });
 
+When("the user clicks on the {string} button", (buttonText: string) => {
+  cy.get("input[name='username']").type("johndoe");
+  cy.findByRole("button", { name: /Next/ }).click();
+  cy.findByRole("button", { name: new RegExp(buttonText, "i") }).click();
+});
+
 Then("the alert {string} should be visible", (text: string) => {
   cy.findByRole("alert").should("be.visible").should("include.text", text);
 });

@@ -68,12 +68,15 @@ context("Login page", () => {
     cy.findByRole("button", { name: /Next/ }).click();
     cy.findByRole("button", { name: /Login with keycloak/i }).click();
     // Log in at keycloak
-    cy.origin("http://localhost:8080", () => {
-      cy.get("input[name='username']").type("johndoe");
-      cy.get("input[name='password']").type("abc123");
-      cy.get("button[type='submit']").click();
-    });
-    cy.location("pathname", { timeout: 20000 }).should(
+    cy.origin(
+      `${Cypress.env("KEYCLOAK_URL")}:${Cypress.env("KEYCLOAK_PORT")}`,
+      () => {
+        cy.get("input[name='username']").type("johndoe");
+        cy.get("input[name='password']").type("abc123");
+        cy.get("button[type='submit']").click();
+      }
+    );
+    cy.location("pathname", { timeout: 10000 }).should(
       "eq",
       generateMAASURL("/machines")
     );
