@@ -130,7 +130,7 @@ jobs:
       - name: Get branch name
         uses: nelonoel/branch-name@v1.0.1
       - name: Setup MAAS
-        uses: canonical/setup-maas@main
+        uses: ndv99/setup-maas@fetch-submodules
         with:
           maas-url: http://localhost:5240/MAAS
       - name: Use Node.js from .nvmrc
@@ -217,7 +217,7 @@ jobs:
       - name: Get branch name
         uses: nelonoel/branch-name@v1.0.1
       - name: Setup MAAS
-        uses: canonical/setup-maas@main
+        uses: ndv99/setup-maas@fetch-submodules
         with:
           maas-url: http://localhost:5240/MAAS
       - name: Setup Keycloak for SSO tests

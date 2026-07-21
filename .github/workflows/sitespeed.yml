@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
       - name: Setup MAAS
-        uses: canonical/setup-maas@main
+        uses: ndv99/setup-maas@fetch-submodules
         with:
           maas-url: ${{ env.MAAS_URL }}/MAAS
           use-maasdb-dump: true
