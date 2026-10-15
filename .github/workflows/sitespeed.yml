@@ -34,7 +34,7 @@ jobs:
       - name: Setup MAAS
         uses: canonical/setup-maas@main
         with:
-          branch: ${{ contains(env.TARGET_BRANCH, 'sitespeed') && 'main' || env.TARGET_BRANCH }}
+          branch: '3.6'
           build-from-source: ${{ inputs.build-from-source || false }}
           maas-url: ${{ env.MAAS_URL }}/MAAS
           use-maasdb-dump: true
